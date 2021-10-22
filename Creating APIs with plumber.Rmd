@@ -52,7 +52,8 @@ API (Application Programming Interface) is a set of rules on how computers or ap
 
 **Metaphor:** Electric sockets are interfaces to access a service -- a socket is an intermediary between electricity and a vacuum cleaner.<sup>1</sup>
 
-**Everyday APIs:** 
+**Everyday APIs:**
+- web browsers 
 - login with Google/Twitter/Facebook
 - travel booking (e.g. Skyscanner)
 - every time we see a Google map on a web site
@@ -98,16 +99,22 @@ APIs are useful because:
 The `plumber` R package allows users to expose existing R code as a web service available to others by using simple "annotations".
 
 How to work with `plumber`:
-1. Filters:
-2. Parser:
-3. Endpoint:
-4. Serialiser:
+0. Write the code you want to share
+1. Annotate (**decorate**) your code with special comments (#*) and tags (@)
+2. Run (**plumb**) the API
+3. (Deploy your API)
+
+<br>
+<div align="justify">
+<img src="pics/plumber-icon.jpg" height=150>
+</div>
+
 
 ]
 
 .pull-right[
 
-<br>
+<br> 
 <div align="center">
 <img src="pics/windows-pipes.gif" height=400>
 </div>
@@ -116,10 +123,40 @@ How to work with `plumber`:
 ]
 
 ---
-#Plumber pipeline
+#The Plumber package
 
-
-
+<br> 
+<div align="center">
+<img src="pics/api-video.gif" height=400>
+</div>
 
 
 ---
+#Plumber pipeline
+
+.pull-left[
+
+<div align="center">
+<img src="pics/api-example.png" height=550>
+</div>
+
+]
+
+.pull-right[
+
+Incoming requests pass through a set of mechanisms before a response is returned to a client:
+
+1. `@filter [name]` can forward requests, throw errors, or return a response without forwarding the request
+2. `@parser [parser name]` determines how Plumber parses the request body (default: JavaScript Object Notation (JSON))
+3. endpoint (e.g.`@get`) responds to incoming requests that match the defined method
+4. `@serializer [serializer name]` determines the format of the response (default JSON)
+
+]
+
+
+---
+#Additional resources
+
+
+
+
