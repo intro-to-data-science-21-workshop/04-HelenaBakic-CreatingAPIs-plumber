@@ -52,13 +52,10 @@ API (Application Programming Interface) is a set of rules on how computers or ap
 
 **Metaphor:** Electric sockets are interfaces to access a service -- a socket is an intermediary between electricity and a vacuum cleaner.<sup>1</sup>
 
-##Why do we need them?
-
-Electric sockets are useful because:
-- any device can outsource its electrical requirements and always get the same output
-- devices can easily be moved around
-- devices do not care about the changes behind the socket as long as the output remains the same
-- electricity service behind the socket does not care about the device
+**Everyday APIs:** 
+- login with Google/Twitter/Facebook
+- travel booking (e.g. Skyscanner)
+- every time we see a Google map on a web site
 
 ]
 
@@ -70,17 +67,43 @@ Electric sockets are useful because:
 3. A **server** sends a **response** with the requested information
 4. API transfers the data to the client
 
-<br>
-<div align="center">
-<img src="pics/API.png" height=300>
+<div align="left">
+<img src="pics/API.png" height=200>
 </div>
 `Credit` Seobility
 ]
 
-.footnote[<sup>1</sup> This example was modified from David Berlind's series on APIs](https://www.programmableweb.com/api-university/what-are-apis-and-how-do-they-work)
+.footnote[<sup>1</sup> This example was modified from [David Berlind's series on APIs](https://www.programmableweb.com/api-university/what-are-apis-and-how-do-they-work)]
 
 ---
-#The janitor package
+#Quick intro to APIs
+
+##Why do we need them?
+
+Electric sockets are useful because:
+- any device can outsource its electrical requirements and always get the same output
+- devices can easily be moved around
+- devices do not care about the changes behind the socket as long as the output remains the same
+- electricity service does not care about the device
+
+APIs are useful because:
+- code/data can be easily shared and re/used
+- information can be shared across multiple clients and will not depend on the programming language
+
+---
+#The Plumber package
+
+.pull-left[
+
+The `plumber` R package allows users to expose existing R code as a web service available to others by using simple "annotations".
+
+How to work with `plumber`:
+1. Filters:
+2. Parser:
+3. Endpoint:
+4. Serialiser:
+
+]
 
 .pull-right[
 
@@ -91,6 +114,11 @@ Electric sockets are useful because:
 `Credit` Windows 95
 
 ]
+
+---
+#Plumber pipeline
+
+
 
 
 
