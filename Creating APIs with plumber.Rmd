@@ -29,7 +29,8 @@ opts_chunk$set(
   engine.opts = list(bash = "-l")
   )
 
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(eval = FALSE)
+
 ```
 
 # Table of contents
@@ -132,7 +133,7 @@ How to work with `plumber`:
 
 
 ---
-#Plumber pipeline
+#Plumber annotations
 
 .pull-left[
 
@@ -144,19 +145,113 @@ How to work with `plumber`:
 
 .pull-right[
 
-Incoming requests pass through a set of mechanisms before a response is returned to a client:
+Annotations are specially-structured comments used to create an API. A full annotation line starts with `#*`, followed by the annotation keyword `@`.
 
-1. `@filter [name]` can forward requests, throw errors, or return a response without forwarding the request
-2. `@parser [parser name]` determines how Plumber parses the request body (default: JavaScript Object Notation (JSON))
-3. endpoint (e.g.`@get`) responds to incoming requests that match the defined method
-4. `@serializer [serializer name]` determines the format of the response (default JSON)
+**Types of annotations:**
+
+- Global annotations: describe the API (e.g. `@apiTitle`, `@apiDescription`)
+- Filter annotation: defines a filter (`@filter [name]`)
+- Endpoint annotation:
+  - `@parser [parser name]` determines how to parse the request body 
+  - method (e.g.`@get [path]`) responds to incoming requests that match the defined method
+  - `@param [name]` determines API inputs
+  - `@serializer [serializer name]` determines the format of the response
 
 ]
 
 
 ---
-#Additional resources
+#Filters
+
+Filters are used to handle/modify incoming requests. Typically, a request will pass every specified filter before going to the endpoint. Common uses are collecting information about incoming requests and authentication.
+
+.pull-left[
+
+**Request logger:**
+
+``` {r}
+#* @filter logger
+function(req, res){
+  cat(as.character(Sys.time()), "-",
+      req$REQUEST_METHOD, req$PATH_INFO, "-",
+      req$HTTP_USER_AGENT, "@", req$REMOTE_ADDR, "\n", append=TRUE, file="api_logs.txt")
+  plumber::forward()
+}
+```
+
+Log file:
+```{r, eval=TRUE, echo=FALSE, fig.width=5}
+v <- scan("./example/api_logs.txt", what = " ", sep = "\n")
+paste0("number of entries: ",length(v))
+v[1:3]
+```
+]
 
 
+
+.pull-right[
+
+**Authentication:**
+
+```{r }
+#* @filter checkAuth
+function(req, res){
+  if (is.null(req$username)){
+    res$status <- 401 # Unauthorized
+    return(list(error="Authentication required"))
+  } else {
+    plumber::forward()
+  }
+}
+```
+
+`{"error":["Authentication required"]}`
+
+]
+
+---
+#Parsers and serializers
+
+(default: JSON<sup>2</sup>)
+
+.footnote[<sup>2</sup> JavaScript Object notation]
+
+---
+#Methods
+
+
+---
+#Parameters
+
+
+---
+#Deploying APIs
+
+---
+#Where to go next?
+
+.pull-left[
+
+Some additional resources:
+
+- [Plumber documentation](https://www.rplumber.io/index.html) 
+- [API examples with Plumber](https://github.com/sol-eng/plumberExamples) 
+- [Plumber cheatsheat](https://github.com/rstudio/cheatsheets/blob/master/plumber.pdf)
+
+More advanced topics & examples:
+1. Security: see [Plumber  documentation](https://www.rplumber.io/articles/security.html)
+
+
+]
+
+.pull-right[
+
+<br>
+<div align="center">
+<img src="pics/matrix.gif" height=400>
+</div>
+
+
+]
 
 
