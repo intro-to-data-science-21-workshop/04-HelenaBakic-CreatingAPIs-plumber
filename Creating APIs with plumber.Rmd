@@ -31,6 +31,8 @@ opts_chunk$set(
 
 knitr::opts_chunk$set(eval = FALSE)
 
+library(plumber)
+
 ```
 
 # Table of contents
@@ -51,7 +53,7 @@ name: topic1
 
 API (Application Programming Interface) is a set of rules on how computers or applications communicate with one another.
 
-**Metaphor:** Electric sockets are interfaces to access a service -- a socket is an intermediary between electricity and a vacuum cleaner.<sup>1</sup>
+**Metaphor:** Electric sockets are interfaces to access a service: a socket is an intermediary between electricity and a vacuum cleaner.<sup>1</sup>
 
 **Everyday APIs:**
 - web browsers 
@@ -60,6 +62,8 @@ API (Application Programming Interface) is a set of rules on how computers or ap
 - every time we see a Google map on a web site
 
 ]
+
+--
 
 .pull-right[
 ##How do (web) APIs work?
@@ -87,6 +91,8 @@ Electric sockets are useful because:
 - devices can easily be moved around
 - devices do not care about the changes behind the socket as long as the output remains the same
 - electricity service does not care about the device
+
+--
 
 APIs are useful because:
 - code/data can be easily shared and re/used
@@ -147,6 +153,8 @@ How to work with `plumber`:
 
 Annotations are specially-structured comments used to create an API. A full annotation line starts with `#*`, followed by the annotation keyword `@`.
 
+
+
 **Types of annotations:**
 
 - Global annotations: describe the API (e.g. `@apiTitle`, `@apiDescription`)
@@ -165,6 +173,8 @@ Annotations are specially-structured comments used to create an API. A full anno
 
 Filters are used to handle/modify incoming requests. Typically, a request will pass every specified filter before going to the endpoint. Common uses are collecting information about incoming requests and authentication.
 
+--
+
 .pull-left[
 
 **Request logger:**
@@ -179,6 +189,7 @@ function(req, res){
 }
 ```
 
+
 Log file:
 ```{r, eval=TRUE, echo=FALSE, fig.width=5}
 v <- scan("./example/api_logs.txt", what = " ", sep = "\n")
@@ -186,7 +197,6 @@ paste0("number of entries: ",length(v))
 v[1:3]
 ```
 ]
-
 
 
 .pull-right[
@@ -212,13 +222,51 @@ function(req, res){
 ---
 #Parsers and serializers
 
-(default: JSON<sup>2</sup>)
+Parsers will determine how API "reads" the request and serializer will determine the format that API will use to respond to the request. Default parser and serializer is **JSON** (JavaScript Object Notation).
 
-.footnote[<sup>2</sup> JavaScript Object notation]
+--
+
+.pull-left[
+
+```{r, eval=TRUE}
+registered_parsers()
+
+```
+```{r, eval=TRUE}
+registered_serializers()
+
+```
+
+]
+
+
+.pull-right[
+
+<div align="right">
+<img src="pics/api-serializer.png" height=400>
+</div>
+
+
+]
 
 ---
 #Methods
 
+Specific endpoint methods should be used for particular types of requests.<sup>2</sup>
+
+
+
+Method | When to use | Most common error messages
+------------- | -------------| -------------|
+`@get` | **Read** (retrieve) a resource | 404 (Not found), 400 (bad request)
+`@post` | **Create** new resources | 404, 409 (Conflict)
+`@put` | **Update** a resource| 404
+`@patch` | **Modify** a resource | 404
+`@delete` | **Delete** a resource | 404
+
+
+
+.footnote[<sup>2</sup> [See more on using HTTP methods for RESTful services](https://www.restapitutorial.com/lessons/httpmethods.html)]
 
 ---
 #Parameters
@@ -226,6 +274,25 @@ function(req, res){
 
 ---
 #Deploying APIs
+
+Running the API from R means you are hosting it on your laptop/PC. There are several reasons why this might be a bad idea:
+
+1. IP addresses are often dynamic and can change over time, meaning that clients will no longer be able to interact with the API
+2. Firewalls might block incoming traffic
+3. If Plumber process crashes or machine gets rebooted, API will have to be manually restarted
+4. Clients need to specify a port number manually
+5. One R process will have to be continuously running
+6. Serving public requests can be a security hazard
+
+--
+
+There are several [options](https://www.rplumber.io/articles/hosting.html) for hosting Plumber APIs. From R, the simplest way might be to use the `plumberDeploy` package to [deploy the API](https://github.com/meztez/plumberDeploy) to DigitalOcean.
+
+```{r}
+mydrop <- plumberDeploy::do_provision #takes about 10 minutes
+# before deployment packages that API relies upon need to be installed on the DigitalOcean
+plumberDeploy::do_deploy_api(id, "date", "./api/", 8000, docs = TRUE)
+```
 
 ---
 #Where to go next?
