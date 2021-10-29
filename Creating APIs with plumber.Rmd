@@ -1,5 +1,5 @@
 ---
-title: "Creating web APIs with plumber"
+title: "Creating web APIs with Plumber"
 author: "Helena Bakic & Katalin Bayer"
 date: "04/11/2021"
 institute: "Hertie School"
@@ -20,14 +20,6 @@ output:
 # figures formatting setup
 options(htmltools.dir.version = FALSE)
 library(knitr)
-opts_chunk$set(
-  prompt = T,
-  fig.align="center", #fig.width=6, fig.height=4.5, 
-  # out.width="748px", #out.length="520.75px",
-  dpi=300, #fig.path='Figs/',
-  cache=T, #echo=F, warning=F, message=F
-  engine.opts = list(bash = "-l")
-  )
 
 knitr::opts_chunk$set(eval = FALSE)
 
@@ -36,17 +28,30 @@ library(plumber)
 ```
 
 # Table of contents
-1. [Topic 1](#topic1)
-2. [Topic 2](#topic2)
+
+1. [Quick intro into APIs](#intro)
+2. [The Plumber package](#plumber)
+  + [Annotations](#annotations)
+  + [Filters](#filters)
+  + [Parsers and serializers](#parsers and serializers)
+  + [Methods and parameters](#methods and parameters)
+3. [Deploying Plumber APIs](#deploying)
+
+<br> 
+<div align="center">
+<img style="padding-right: 40px" src="pics/plumber-old.png" height=200>
+<img src="pics/plumber-output.png" height=200>
+<img src="pics/plumber-broken.png" height=200>
+<img src="pics/plumber-input.png" height=200>
+</div>
+
+`Disclaimer` Order of pictures does not represent Plumber package creators' views
+
 
 ---
-class: inverse, center, middle
-name: topic1
+name: intro
 
-#Topic 1
-
----
-#Quick intro to APIs
+#Quick intro into APIs
 
 .pull-left[
 ##What are APIs?
@@ -99,6 +104,8 @@ APIs are useful because:
 - information can be shared across multiple clients and will not depend on the programming language
 
 ---
+name: plumber
+
 #The Plumber package
 
 .pull-left[
@@ -139,6 +146,8 @@ How to work with `plumber`:
 
 
 ---
+name: annotations
+
 #Plumber annotations
 
 .pull-left[
@@ -162,13 +171,15 @@ Annotations are specially-structured comments used to create an API. A full anno
 - Endpoint annotation:
   - `@parser [parser name]` determines how to parse the request body 
   - method (e.g.`@get [path]`) responds to incoming requests that match the defined method
-  - `@param [name]` determines API inputs
+  - `@param [name]` define API inputs
   - `@serializer [serializer name]` determines the format of the response
 
 ]
 
 
 ---
+name: filters
+
 #Filters
 
 Filters are used to handle/modify incoming requests. Typically, a request will pass every specified filter before going to the endpoint. Common uses are collecting information about incoming requests and authentication.
@@ -220,6 +231,8 @@ function(req, res){
 ]
 
 ---
+name: parsers and serializers
+
 #Parsers and serializers
 
 Parsers will determine how API "reads" the request and serializer will determine the format that API will use to respond to the request. Default parser and serializer is **JSON** (JavaScript Object Notation).
@@ -250,29 +263,68 @@ registered_serializers()
 ]
 
 ---
-#Methods
+name: methods and parameters
 
-Specific endpoint methods should be used for particular types of requests.<sup>2</sup>
+#Methods & parameters
+
+.pull-left[
+
+There are conventions on which endpoint **method** to use for particular types of requests.<sup>2</sup> These are some of the most common uses:
+
+- `@get`: **Read** (retrieve) a resource
+- `@post`: **Create** new resources
+- `@put`: **Update** a resource
+- `@patch`: **Modify** a resource
+- `@delete`: **Delete** a resource
+
+]
+
+.pull-right[
+
+<br>
+<div align="right">
+<img src="pics/404-image.png" height=400">
+</div>
+
+`Credit` Pixar
+
+]
 
 
-
-Method | When to use | Most common error messages
-------------- | -------------| -------------|
-`@get` | **Read** (retrieve) a resource | 404 (Not found), 400 (bad request)
-`@post` | **Create** new resources | 404, 409 (Conflict)
-`@put` | **Update** a resource| 404
-`@patch` | **Modify** a resource | 404
-`@delete` | **Delete** a resource | 404
-
-
-
-.footnote[<sup>2</sup> [See more on using HTTP methods for RESTful services](https://www.restapitutorial.com/lessons/httpmethods.html)]
 
 ---
-#Parameters
+#Methods & parameters
 
+.pull-left[
+
+There are conventions on which endpoint **method** to use for particular types of requests.<sup>2</sup> These are some of the most common uses:
+
+- `@get`: **Read** (retrieve) a resource
+- `@post`: **Create** new resources
+- `@put`: **Update** a resource
+- `@patch`: **Modify** a resource
+- `@delete`: **Delete** a resource
+
+**Parameters** define API inputs<sup>3</sup> which will enable sending user data to the API endpoint.
+
+Note: unless otherwise instructed, all parameters will be passed as character strings.
+
+
+.footnote[<sup>2</sup> [See more on using HTTP methods for RESTful services](https://www.restapitutorial.com/lessons/httpmethods.html)<br> <sup>3</sup> [See more on `@get` and `@post` methods and parameters](https://stackoverflow.com/questions/504947/when-should-i-use-get-or-post-method-whats-the-difference-between-them)]
+
+]
+
+.pull-right[
+
+<div align="right">
+<img src="pics/api-parameters.png" height=500">
+</div>
+
+]
 
 ---
+name: deploying
+
 #Deploying APIs
 
 Running the API from R means you are hosting it on your laptop/PC. There are several reasons why this might be a bad idea:
@@ -286,7 +338,7 @@ Running the API from R means you are hosting it on your laptop/PC. There are sev
 
 --
 
-There are several [options](https://www.rplumber.io/articles/hosting.html) for hosting Plumber APIs. From R, the simplest way might be to use the `plumberDeploy` package to [deploy the API](https://github.com/meztez/plumberDeploy) to DigitalOcean.
+There are several [options](https://www.rplumber.io/articles/hosting.html) for hosting Plumber APIs. From R, the simplest way might be to use the `plumberDeploy` [package](https://github.com/meztez/plumberDeploy) to deploy the API to DigitalOcean.
 
 ```{r}
 mydrop <- plumberDeploy::do_provision #takes about 10 minutes
@@ -295,6 +347,8 @@ plumberDeploy::do_deploy_api(id, "date", "./api/", 8000, docs = TRUE)
 ```
 
 ---
+name: resources
+
 #Where to go next?
 
 .pull-left[
@@ -307,6 +361,8 @@ Some additional resources:
 
 More advanced topics & examples:
 1. Security: see [Plumber  documentation](https://www.rplumber.io/articles/security.html)
+2. [Plumber tips](https://gabrielcp.medium.com/making-apis-with-r-plumber-examples-and-tips-a36efdffc3fd)
+3. [Plumbing machine learning models](https://shirinsplayground.netlify.app/2018/01/plumber/)
 
 
 ]
@@ -321,4 +377,9 @@ More advanced topics & examples:
 
 ]
 
+---
+class: inverse, center, middle
 
+Thanks for tuning in!
+
+Coming next: Plumber tutorial with Katalin Bayer 
