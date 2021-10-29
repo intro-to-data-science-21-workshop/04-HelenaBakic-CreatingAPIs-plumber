@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Creating web APIs with Plumber</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Helena Bakic &amp; Katalin Bayer" />
+    <meta name="date" content="2021-04-11" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Creating web APIs with Plumber
+### Helena Bakic &amp; Katalin Bayer
+### Hertie School
+### 04/11/2021
+
+---
+
+
+
+
+# Table of contents
+
+1. [Quick intro into APIs](#intro)
+2. [The Plumber package](#plumber)
+  + [Annotations](#annotations)
+  + [Filters](#filters)
+  + [Parsers and serializers](#parsers and serializers)
+  + [Methods and parameters](#methods and parameters)
+3. [Deploying Plumber APIs](#deploying)
+
+&lt;br&gt; 
+&lt;div align="center"&gt;
+&lt;img style="padding-right: 40px" src="pics/plumber-old.png" height=200&gt;
+&lt;img src="pics/plumber-output.png" height=200&gt;
+&lt;img src="pics/plumber-broken.png" height=200&gt;
+&lt;img src="pics/plumber-input.png" height=200&gt;
+&lt;/div&gt;
+
+`Disclaimer` Order of pictures does not represent Plumber package creators' views
+
+
+---
+name: intro
+
+#Quick intro into APIs
+
+.pull-left[
+##What are APIs?
+
+API (Application Programming Interface) is a set of rules on how computers or applications communicate with one another.
+
+**Metaphor:** Electric sockets are interfaces to access a service: a socket is an intermediary between electricity and a vacuum cleaner.&lt;sup&gt;1&lt;/sup&gt;
+
+**Everyday APIs:**
+- web browsers 
+- login with Google/Twitter/Facebook
+- travel booking (e.g. Skyscanner)
+- every time we see a Google map on a web site
+
+]
+
+--
+
+.pull-right[
+##How do (web) APIs work?
+
+1. A **client** initiates an API call (**request**) to retrieve information 
+2. API "talks" to a web server
+3. A **server** sends a **response** with the requested information
+4. API transfers the data to the client
+
+&lt;div align="left"&gt;
+&lt;img src="pics/API.png" height=200&gt;
+&lt;/div&gt;
+`Credit` Seobility
+]
+
+.footnote[&lt;sup&gt;1&lt;/sup&gt; This example was modified from [David Berlind's series on APIs](https://www.programmableweb.com/api-university/what-are-apis-and-how-do-they-work)]
+
+---
+#Quick intro to APIs
+
+##Why do we need them?
+
+Electric sockets are useful because:
+- any device can outsource its electrical requirements and always get the same output
+- devices can easily be moved around
+- devices do not care about the changes behind the socket as long as the output remains the same
+- electricity service does not care about the device
+
+--
+
+APIs are useful because:
+- code/data can be easily shared and re/used
+- information can be shared across multiple clients and will not depend on the programming language
+
+---
+name: plumber
+
+#The Plumber package
+
+.pull-left[
+
+The `plumber` R package allows users to expose existing R code as a web service available to others by using simple "annotations".
+
+How to work with `plumber`:
+0. Write the code you want to share
+1. Annotate (**decorate**) your code with special comments (#*) and tags (@)
+2. Run (**plumb**) the API
+3. (Deploy your API)
+
+&lt;br&gt;
+&lt;div align="justify"&gt;
+&lt;img src="pics/plumber-icon.jpg" height=150&gt;
+&lt;/div&gt;
+
+
+]
+
+.pull-right[
+
+&lt;br&gt; 
+&lt;div align="center"&gt;
+&lt;img src="pics/windows-pipes.gif" height=400&gt;
+&lt;/div&gt;
+`Credit` Windows 95
+
+]
+
+---
+#The Plumber package
+
+&lt;br&gt; 
+&lt;div align="center"&gt;
+&lt;img src="pics/api-video.gif" height=400&gt;
+&lt;/div&gt;
+
+
+---
+name: annotations
+
+#Plumber annotations
+
+.pull-left[
+
+&lt;div align="center"&gt;
+&lt;img src="pics/api-example.png" height=550&gt;
+&lt;/div&gt;
+
+]
+
+.pull-right[
+
+Annotations are specially-structured comments used to create an API. A full annotation line starts with `#*`, followed by the annotation keyword `@`.
+
+
+
+**Types of annotations:**
+
+- Global annotations: describe the API (e.g. `@apiTitle`, `@apiDescription`)
+- Filter annotation: defines a filter (`@filter [name]`)
+- Endpoint annotation:
+  - `@parser [parser name]` determines how to parse the request body 
+  - method (e.g.`@get [path]`) responds to incoming requests that match the defined method
+  - `@param [name]` define API inputs
+  - `@serializer [serializer name]` determines the format of the response
+
+]
+
+
+---
+name: filters
+
+#Filters
+
+Filters are used to handle/modify incoming requests. Typically, a request will pass every specified filter before going to the endpoint. Common uses are collecting information about incoming requests and authentication.
+
+--
+
+.pull-left[
+
+**Request logger:**
+
+
+```r
+#* @filter logger
+function(req, res){
+  cat(as.character(Sys.time()), "-",
+      req$REQUEST_METHOD, req$PATH_INFO, "-",
+      req$HTTP_USER_AGENT, "@", req$REMOTE_ADDR, "\n", append=TRUE, file="api_logs.txt")
+  plumber::forward()
+}
+```
+
+
+Log file:
+
+```
+## [1] "number of entries: 63"
+```
+
+```
+## [1] "2021-10-23 13:41:56 - GET /__docs__/ - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36 @ 127.0.0.1 "                    
+## [2] "2021-10-23 13:41:56 - GET /__docs__/swagger-ui.css - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36 @ 127.0.0.1 "      
+## [3] "2021-10-23 13:41:57 - GET /__docs__/swagger-ui-bundle.js - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36 @ 127.0.0.1 "
+```
+]
+
+
+.pull-right[
+
+**Authentication:**
+
+
+```r
+#* @filter checkAuth
+function(req, res){
+  if (is.null(req$username)){
+    res$status &lt;- 401 # Unauthorized
+    return(list(error="Authentication required"))
+  } else {
+    plumber::forward()
+  }
+}
+```
+
+`{"error":["Authentication required"]}`
+
+]
+
+---
+name: parsers and serializers
+
+#Parsers and serializers
+
+Parsers will determine how API "reads" the request and serializer will determine the format that API will use to respond to the request. Default parser and serializer is **JSON** (JavaScript Object Notation).
+
+--
+
+.pull-left[
+
+
+```r
+registered_parsers()
+```
+
+```
+##  [1] "all"     "csv"     "feather" "form"    "json"    "multi"   "none"   
+##  [8] "octet"   "rds"     "text"    "tsv"     "yaml"
+```
+
+```r
+registered_serializers()
+```
+
+```
+##  [1] "bmp"         "cat"         "contentType" "csv"         "device"     
+##  [6] "feather"     "format"      "html"        "htmlwidget"  "jpeg"       
+## [11] "json"        "null"        "pdf"         "png"         "print"      
+## [16] "rds"         "svg"         "text"        "tiff"        "tsv"        
+## [21] "unboxedJSON" "yaml"
+```
+
+]
+
+
+.pull-right[
+
+&lt;div align="right"&gt;
+&lt;img src="pics/api-serializer.png" height=400&gt;
+&lt;/div&gt;
+
+
+]
+
+---
+name: methods and parameters
+
+#Methods &amp; parameters
+
+.pull-left[
+
+There are conventions on which endpoint **method** to use for particular types of requests.&lt;sup&gt;2&lt;/sup&gt; These are some of the most common uses:
+
+- `@get`: **Read** (retrieve) a resource
+- `@post`: **Create** new resources
+- `@put`: **Update** a resource
+- `@patch`: **Modify** a resource
+- `@delete`: **Delete** a resource
+
+]
+
+.pull-right[
+
+&lt;br&gt;
+&lt;div align="right"&gt;
+&lt;img src="pics/404-image.png" height=400"&gt;
+&lt;/div&gt;
+
+`Credit` Pixar
+
+]
+
+
+
+---
+#Methods &amp; parameters
+
+.pull-left[
+
+There are conventions on which endpoint **method** to use for particular types of requests.&lt;sup&gt;2&lt;/sup&gt; These are some of the most common uses:
+
+- `@get`: **Read** (retrieve) a resource
+- `@post`: **Create** new resources
+- `@put`: **Update** a resource
+- `@patch`: **Modify** a resource
+- `@delete`: **Delete** a resource
+
+**Parameters** define API inputs&lt;sup&gt;3&lt;/sup&gt; which will enable sending user data to the API endpoint.
+
+Note: unless otherwise instructed, all parameters will be passed as character strings.
+
+
+.footnote[&lt;sup&gt;2&lt;/sup&gt; [See more on using HTTP methods for RESTful services](https://www.restapitutorial.com/lessons/httpmethods.html)&lt;br&gt; &lt;sup&gt;3&lt;/sup&gt; [See more on `@get` and `@post` methods and parameters](https://stackoverflow.com/questions/504947/when-should-i-use-get-or-post-method-whats-the-difference-between-them)]
+
+]
+
+.pull-right[
+
+&lt;div align="right"&gt;
+&lt;img src="pics/api-parameters.png" height=500"&gt;
+&lt;/div&gt;
+
+]
+
+---
+name: deploying
+
+#Deploying APIs
+
+Running the API from R means you are hosting it on your laptop/PC. There are several reasons why this might be a bad idea:
+
+1. IP addresses are often dynamic and can change over time, meaning that clients will no longer be able to interact with the API
+2. Firewalls might block incoming traffic
+3. If Plumber process crashes or machine gets rebooted, API will have to be manually restarted
+4. Clients need to specify a port number manually
+5. One R process will have to be continuously running
+6. Serving public requests can be a security hazard
+
+--
+
+There are several [options](https://www.rplumber.io/articles/hosting.html) for hosting Plumber APIs. From R, the simplest way might be to use the `plumberDeploy` [package](https://github.com/meztez/plumberDeploy) to deploy the API to DigitalOcean.
+
+
+```r
+mydrop &lt;- plumberDeploy::do_provision #takes about 10 minutes
+# before deployment packages that API relies upon need to be installed on the DigitalOcean
+plumberDeploy::do_deploy_api(id, "date", "./api/", 8000, docs = TRUE)
+```
+
+---
+name: resources
+
+#Where to go next?
+
+.pull-left[
+
+Some additional resources:
+
+- [Plumber documentation](https://www.rplumber.io/index.html) 
+- [API examples with Plumber](https://github.com/sol-eng/plumberExamples) 
+- [Plumber cheatsheat](https://github.com/rstudio/cheatsheets/blob/master/plumber.pdf)
+
+More advanced topics &amp; examples:
+1. Security: see [Plumber  documentation](https://www.rplumber.io/articles/security.html)
+2. [Plumber tips](https://gabrielcp.medium.com/making-apis-with-r-plumber-examples-and-tips-a36efdffc3fd)
+3. [Plumbing machine learning models](https://shirinsplayground.netlify.app/2018/01/plumber/)
+
+
+]
+
+.pull-right[
+
+&lt;br&gt;
+&lt;div align="center"&gt;
+&lt;img src="pics/matrix.gif" height=400&gt;
+&lt;/div&gt;
+
+
+]
+
+---
+class: inverse, center, middle
+
+Thanks for tuning in!
+
+Coming next: Plumber tutorial with Katalin Bayer 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"hash": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,22 +1,7 @@
+#Example taken from: https://rdrr.io/github/AdrianAntico/RemixAutoML/src/tests/Scripts/QA_RemixAutoML/plumber.R
+
+
 library(plumber)
-
-#* @filter logger
-function(req, res){
-  cat(as.character(Sys.time()), ";",
-      req$REQUEST_METHOD, req$PATH_INFO, ";",
-      req$HTTP_USER_AGENT, "@", req$REMOTE_ADDR, "\n", append=TRUE, file="api_logs.txt")
-  plumber::forward()
-}
-
-#* @filter checkAuth
-function(req, res){
-  if (is.null(req$username)){
-    res$status <- 401 # Unauthorized
-    return(list(error="Authentication required"))
-  } else {
-    plumber::forward()
-  }
-}
 
 #* @apiTitle Plumber Example API
 
