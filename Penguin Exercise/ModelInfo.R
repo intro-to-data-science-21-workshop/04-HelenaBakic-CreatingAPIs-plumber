@@ -8,11 +8,6 @@
 #
 ################################################################################
 
-#
-# Load packages required for plots
-#
-library(ggplot2)
-library(wesanderson)
 
 #
 # Load the Penguin Data Set
@@ -43,7 +38,6 @@ model <- rand_forest() %>%
 model
 
 readr::write_rds(model, "./model.rds")
-
 
 
 #
