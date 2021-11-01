@@ -1,0 +1,72 @@
+servers:
+  - url: ''
+openapi: 3.0.3
+info:
+  description: API description
+  title: New Penguin
+  version: 1.0.0
+paths:
+  /checkup:
+    get:
+      summary: 'This is a system check.'
+      responses:
+        default:
+          description: Default response.
+      parameters: []
+  /welcome:
+    post:
+      summary: 'Enter your name, and you will be welcomed.'
+      responses:
+        default:
+          description: Default response.
+      parameters: [] 
+      requestBody:
+        description: Welcome
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: 
+                  type: string
+                  title: "Enter your name please"
+                  example: Kat
+  /plot:
+    get:
+      summary: 'Quick overview of the data.'
+      responses:
+        default:
+          description: Default response.
+      parameters: []
+  /predict:
+    post:
+      summary: 'Predict penguin species based on input data'
+      responses:
+        default:
+          description: Default response.
+      parameters: []
+      requestBody:
+        description: Penguin Data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bill_length_mm: 
+                  type: number
+                  title: "Penguin bill length"
+                  example: 46.8
+                bill_depth_mm: 
+                  type: number
+                  title: "Penguin bill depth"
+                  example: 16.1
+                flipper_length_mm: 
+                  type: number
+                  title: "Penguin flipper length"
+                  example: 0
+                body_mass_g: 
+                  type: number
+                  title: "Penguin body mass"
+                  example: 5500
