@@ -19,27 +19,16 @@
 #
 ################################################################################
 
+#installation of pacman package to handle other package installations
 
+if (!require("pacman")) install.packages("pacman")
+
+
+#installing/loading packages
+pacman::p_load(plumber, jsonlite, yaml, palmerpenguins, ranger, parsnip, 
+               tidyverse, ggplot2, wesanderson)
 
 #################################################################################
-#
-# Load all relevant plumber packages
-#
-library(plumber)
-library(jsonlite)
-library(yaml)
-
-# Library needed for data
-library(palmerpenguins)
-
-# Libraries needed for the model
-library(ranger)
-library(parsnip)
-library(tidyverse)
-
-# Libraries needed for plots in ModelInfo.R
-library(ggplot2)
-library(wesanderson)
 
 # Source all data and model info constructed previously, make sure this 
 # "ModelInfo.R file is saved in the same folder as the plumber file.
