@@ -2,7 +2,7 @@
 title: "Creating web APIs with Plumber"
 author: "Helena Bakic & Katalin Bayer"
 date: "04/11/2021"
-institute: "Hertie School"
+institute: "Data Science Workshop, Hertie School"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts]
@@ -13,6 +13,7 @@ output:
       countIncrementalSlides: false
       ratio: '16:9'
       hash: true
+      
 ---
 
 ```{r setup, include=FALSE}
@@ -45,7 +46,7 @@ library(plumber)
 <img src="pics/plumber-input.png" height=200>
 </div>
 
-`Disclaimer` Order of pictures does not represent Plumber package creators' views
+`Disclaimer` Order of pictures does not necessarily represent Plumber package creators' views
 
 
 ---
@@ -87,7 +88,7 @@ API (Application Programming Interface) is a set of rules on how computers or ap
 .footnote[<sup>1</sup> This example was modified from [David Berlind's series on APIs](https://www.programmableweb.com/api-university/what-are-apis-and-how-do-they-work)]
 
 ---
-#Quick intro to APIs
+#Quick intro into APIs
 
 ##Why do we need them?
 
