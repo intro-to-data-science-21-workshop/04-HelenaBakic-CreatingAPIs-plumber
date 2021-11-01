@@ -1,6 +1,5 @@
 #* @apiTitle Plumber Example API
 
-
 ################################################################################
 #
 # Citation: please refer to https://allisonhorst.github.io/palmerpenguins/index.html
@@ -10,6 +9,16 @@
 # explanation of the plumber package and how to integrate APIs.
 #
 ################################################################################
+
+################################################################################
+#
+#
+# NOTE FOR THIS EXERCISE TO WORK, MAKE SURE YOU HAVE DOWNLOADED ALL FILES FROM 
+# THE GITHUB REPOSITORY INTO ONE FOLDER. OTHERWISE THE FILE WILL NOT RUN.
+#
+#
+################################################################################
+
 
 
 #################################################################################
@@ -28,10 +37,15 @@ library(ranger)
 library(parsnip)
 library(tidyverse)
 
+# Libraries needed for plots in ModelInfo.R
+library(ggplot2)
+library(wesanderson)
+
 # Source all data and model info constructed previously, make sure this 
 # "ModelInfo.R file is saved in the same folder as the plumber file.
 source("./ModelInfo.R")
 model <- readr::read_rds("./model.rds")
+
 
 #################################################################################
 #
@@ -140,4 +154,3 @@ function(_____, _____) {
 #   pr %>% 
 #     pr_set_api_spec(yaml::read_yaml("./newPenguin.yaml"))
 # }
-
